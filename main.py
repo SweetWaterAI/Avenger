@@ -1,7 +1,12 @@
 import os
-from Bio import SeqIO
+from Bio import SeqIO, SeqFeature
 from Bio.SeqFeature import SeqFeature, FeatureLocation
 import typer
+from Bio.Seq import Seq
+from Bio.Restriction import SmaI
+from Bio.SeqFeature import FeatureLocation, CompoundLocation
+from Bio.Restriction import RestrictionBatch
+
 
 app = typer.Typer()
 
@@ -19,8 +24,48 @@ def load_gene(filename):
 
     return seq_record
 
+def generate_sgRNA_targets(genome_file: str, target_dir: str, output_file: str):
+    # Load genome file
+    genome_record = load_gene(genome_file)
+    genome_seq = genome_record.seq
+    
+    # Load target files
+    targets = []
+    for filename in os.listdir(target_dir):
+        if filename.endswith(".gb") or filename.endswith(".gbk"):
+            target_record = load_gene(os.path.join(target_dir, filename))
+            targets.append(target_record)
+    
+    # Generate potential sgRNA targets
+    rb = RestrictionBatch([SmaI])
+    potential_targets = []
+    for target in targets:
+        for feature in target.features:
+            if feature.type == "CDS":
+                feature_seq = feature.extract(genome_seq)
+                for i in range(len(feature_seq)-20):
+                    if rb.search(feature_seq[i:i+23]):
+                        target_location = feature.location.parts[0].start + i
+                        potential_targets.append(target_location)
+                        
+    # Write targets to output file
+    with open(output_file, "w") as f:
+        for target in potential_targets:
+            f.write(f"{genome_record.id},{target}\n")
+
 @app.command()
-def modify_plasmid(
+def generate_sgRNA(
+    genome_file: str = typer.Argument(..., help="Path to genome file in FASTA format"),
+    target_dir: str = typer.Argument(..., help="Path to directory containing genbank files specifying target regions"),
+    output_file: str = typer.Argument(..., help="Path to output file"),
+):
+    """
+    Generate sgRNA targets based off of a full genome input and a list of genbank target files
+    """
+    generate_sgRNA_targets(genome_file, target_dir, output_file)
+
+@app.command()
+def compile_plasmid(
     backbone_file: str = typer.Option(..., "--backbone-file", "-b", help="The path to the GenBank file of the plasmid backbone to build from."),
     target_dir: str = typer.Option(..., "--target-dir", "-t", help="The path to the directory containing the list of target genes to replace."),
     replacement_dir: str = typer.Option(..., "--replacement-dir", "-r", help="The path to the directory containing the list of replacement genes to use."),
