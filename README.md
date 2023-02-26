@@ -23,7 +23,7 @@ Add GATK4 to the path
 `export PATH=$PATH:/path/to/gatk4`
 
 
-### Example Usage
+## Example
 
 download
 This function downloads gene data for a given gene name from NCBI and saves all fields as annotations in a genbank file. If the gene data has already been downloaded, the function exits without re-downloading the data.
@@ -40,9 +40,10 @@ Usage:
 This function uses GATK4 to find all mutations of a given gene within a genome. The function requires a reference genome file, the name of the gene of interest, and a path to the output VCF file.
 
 Usage:
+
 `$ python main.py discover <reference_file> <gene_name> <output_file>`
 
-####Arguments:
+#### Arguments:
 
 - reference_file (required): Path to the reference genome file.
 - gene_name (required): Name of the gene of interest.
