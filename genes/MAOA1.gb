@@ -1,0 +1,55 @@
+LOCUS       LC535026                 702 bp    DNA     linear   PLN 28-MAR-2020
+DEFINITION  Microsporum canis MAOA1 genes for 18S rRNA, ITS1, 5.8S rRNA, ITS2,
+            partial and complete sequence.
+ACCESSION   LC535026
+VERSION     LC535026.1
+KEYWORDS    .
+SOURCE      NCBI
+  ORGANISM  Microsporum canis
+            Eukaryota; Fungi; Dikarya; Ascomycota; Pezizomycotina;
+            Eurotiomycetes; Eurotiomycetidae; Onygenales; Arthrodermataceae;
+            Microsporum.
+REFERENCE   1
+  AUTHORS   Singh,A.D. and Debnath,C.
+  TITLE     Microsporum canis MAOA1, ITS1, partial sequence; 5.8S rRNA gene and
+            ITS2, complete sequence; and large subunit rRNA gene, partial
+            sequence
+  JOURNAL   Unpublished
+REFERENCE   2  (bases 1 to 702)
+  AUTHORS   Singh,A.D. and Debnath,C.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (24-MAR-2020) Contact:Abhishek Dharm Singh West Bengal
+            University of Animal and Fishery Sciences, Veterinary Public Health;
+            37, K. B. Sarani, Belgachia, Kolkata, West Bengal 700037, India URL
+            :https://wbuafscl.ac.in/
+FEATURES             Location/Qualifiers
+     source          1..702
+                     /organism="Microsporum canis"
+                     /mol_type="genomic DNA"
+                     /strain="MAOA1"
+                     /isolate="S019782"
+                     /isolation_source="skin scraping from pet dog"
+                     /host="Canis lupus familiaris"
+                     /db_xref="taxon:63405"
+                     /country="India"
+                     /lat_lon="22.5726 N 88.3639 E"
+                     /collection_date="2019-01-15"
+                     /collected_by="Abhishek Dharm Singh"
+     misc_RNA        <1..>702
+                     /note="contains 18S ribosomal RNA, internal transcribed
+                     spacer 1, 5.8S ribosomal RNA and internal transcribed
+                     spacer 2"
+ORIGIN
+        1 atgcaggatc attaacgcgc aagaggtcga agttggcccc cgaagctctt ccgtctcccc
+       61 ccccgggcct cccggggagg ttgcgggcgg cgaggggtgc ctccggccgc acgcccattc
+      121 ttgaccgacc cggttgcctc ggcgggccgc gcctgctgtg ctacagcggc cgttcggggg
+      181 ggacgccgga gggggactct tgtttcctgg gccacgcccc gggcagcgct cgccggagga
+      241 ttactctgga aaacacactc tcgaaagaac ataccgtctg agcgagcaac gcaaatcagt
+      301 tacaactttc aacaacggat ctcttggttc cggcatcgat gaagaacgca gcgaaatgcg
+      361 atacgcaatg ggaattgcag aattccgaga atcatcgaat cttggaacgc acattgcgcc
+      421 ccctggcatt ccggggggca tgcctgttcg agcgtcattt caacccctca agcccggctt
+      481 gtgggatgga cgaccgtccc ccctccccag caaccaccca ccgcttgggg gggtgggagg
+      541 gagggggacg cgcccgaaaa gcagtggtca ggccgcgatt ccggctcctg ggcgaatggg
+      601 acataccacc gcctccagga ccggccggca ggctggccta acgcaccatg tattattcag
+      661 gttggcctcg gatcaggcag ggatacccgc tgcacttcat ga
+//

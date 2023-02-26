@@ -1,0 +1,6 @@
+biopython
+requests
+typer
+tensorflow
+dm-sonnet
+graphs

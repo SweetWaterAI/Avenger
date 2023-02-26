@@ -1,97 +1,33 @@
 import os
 import typer
 import subprocess
-import requests
+from utils import load_gene 
 from Bio import SeqIO, Entrez
-from Bio.Restriction import SmaI, RestrictionBatch
-from Bio.SeqFeature import FeatureLocation, CompoundLocation
+from Bio.SeqFeature import SeqFeature, FeatureLocation 
+# todo DeepCRISPR needs to be ported to tf2
+# from DeepCRISPR.deepcrispr import DCModelOntar
+# todo wrap this into a better include:
+# from sgrna_design import build_sgrna_library
 
 app = typer.Typer()
 
-def load_gene(filename):
-    """
-    Load the input file as a Biopython SeqRecord object
-    """
-    file_ext = os.path.splitext(filename)[1].lower()
-    if file_ext == ".gb" or file_ext == ".gbk" or file_ext == ".genbank":
-        seq_record = SeqIO.read(filename, "genbank")
-    elif file_ext == ".fa" or file_ext == ".fasta":
-        seq_record = SeqIO.read(filename, "fasta")
-    else:
-        raise ValueError(f"Unsupported file format: {file_ext}")
-
-    return seq_record
-
-def generate_sgRNA_targets(genome_file: str, target_dir: str, output_file: str):
-    # Load genome file
-    genome_record = load_gene(genome_file)
-    genome_seq = genome_record.seq
-    
-    # Load target files
-    targets = []
-    for filename in os.listdir(target_dir):
-        if filename.endswith(".gb") or filename.endswith(".gbk"):
-            target_record = load_gene(os.path.join(target_dir, filename))
-            targets.append(target_record)
-    
-    # Generate potential sgRNA targets
-    rb = RestrictionBatch([SmaI])
-    potential_targets = []
-    for target in targets:
-        for feature in target.features:
-            if feature.type == "CDS":
-                feature_seq = feature.extract(genome_seq)
-                for i in range(len(feature_seq)-20):
-                    if rb.search(feature_seq[i:i+23]):
-                        target_location = feature.location.parts[0].start + i
-                        potential_targets.append(target_location)
-                        
-    # Write targets to output file
-    with open(output_file, "w") as f:
-        for target in potential_targets:
-            f.write(f"{genome_record.id},{target}\n")
-
-def get_mutation_data(gene_name):
-    """
-    Retrieves mutation data for a given gene from an external data source.
-
-    Args:
-        gene_name (str): Name of the gene to retrieve mutation data for.
-
-    Returns:
-        List of dictionaries, where each dictionary contains information about a single mutation.
-    """
-    url = f"https://magi.brown.edu/api/gene?hugo_symbol={gene_name}"
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        data = response.json()
-        mutations = []
-
-        for mutation in data["mutations"]:
-            mutation_data = {
-                "amino_acid_change": mutation["amino_acid_change"],
-                "chromosome": mutation["chromosome"],
-                "start": mutation["start"],
-                "stop": mutation["stop"],
-                "reference": mutation["reference"],
-                "variant": mutation["variant"],
-                "classification": mutation["classification"],
-            }
-            mutations.append(mutation_data)
-
-        return mutations
-    else:
-        return None
-
 @app.command()
-def download_gene_data(gene_name: str, email: str = typer.Option(None, help="Email address for NCBI queries")):
+def get(gene_name: str, email: str = typer.Option(None, help="Email address for NCBI queries")):
     """
     Downloads gene data for a given gene name from NCBI and saves all fields as annotations in a genbank file.
+
+    Parameters:
+        gene_name (str): The name of the gene to download.
+        email (str, optional): The email address to use for NCBI queries. Defaults to None.
+
     """
+    if os.path.exists(f"genes/{gene_name}.gb"):
+        typer.echo(f"found genes/{gene_name}.gb")
+        return
+
     # If email is not provided, use a hard-coded email address
     if email is None:
-        email = "your.email@example.com"
+        email = "contact@sweetwater.ai"
     
     # Set the email address for Entrez queries
     Entrez.email = email
@@ -125,24 +61,29 @@ def download_gene_data(gene_name: str, email: str = typer.Option(None, help="Ema
             gene_record.annotations["accession"] = check_accession[1]
         
         # Save the gene record as a genbank file with the gene name as the filename
-        SeqIO.write(gene_record, f"{gene_name}.gb", "gb")
-        typer.echo(f"Gene data for {gene_name} downloaded and saved to {gene_name}.gb")
+        SeqIO.write(gene_record, f"genes/{gene_name}.gb", "gb")
+        typer.echo(f"Gene data for {gene_name} downloaded and saved to genes/{gene_name}.gb")
     else:
         typer.echo(f"No records found for {gene_name} in NCBI's nucleotide database")
 
 @app.command()
-def find_mutations(reference_file: str = typer.Argument(..., help="Path to the reference genome FASTA file."),
+def find(reference_file: str = typer.Argument(..., help="Path to the reference genome file."),
                    gene_name: str = typer.Argument(..., help="Name of the gene of interest."),
                    output_file: str = typer.Argument(..., help="Path to the output VCF file.")):
     """
     Use GATK4 to find all mutations of a given gene within a genome.
+
+    Parameters:
+        reference_file (str): Path to the reference genome file in FASTA format.
+        gene_name (str): Name of the gene of interest.
+        output_file (str): Path to the output VCF file.    
     """
     # Use Conda to activate the GATK4 environment
     cmd = 'conda activate gatk4'
     subprocess.run(cmd, shell=True)
 
     # Use Biopython to get the gene coordinates
-    reference_seq = SeqIO.read(reference_file, 'fasta')
+    reference_seq = load_gene(reference_file)
     gene_seq = reference_seq.seq
     for feature in reference_seq.features:
         if feature.type == 'gene' and feature.qualifiers['gene'][0] == gene_name:
@@ -164,7 +105,77 @@ def find_mutations(reference_file: str = typer.Argument(..., help="Path to the r
 
 
 @app.command()
-def modify_plasmid(
+def predict(
+    gsRNA_candidates: str = typer.Argument(..., help="Path to a file containing gRNA sequences"),
+    targets: str = typer.Argument(..., help="Path to a file containing target sequences"),
+    genome: str = typer.Argument(..., help="Path to the full genome sequence"),
+    output: str = typer.Option("ontar_results.tsv", help="Path to the output file"),
+    model_path: str = typer.Option(..., help="Path to the DCModelOntar model file"),
+    pam: str = typer.Option("NGG", help="PAM sequence used by the gRNA"),
+):
+    """
+    Predict off-targets for a set of gRNA candidates and target sequences using the DCModelOntar model.
+
+    Parameters:
+        gsRNA_candidates (str): Path to a file containing gRNA sequences.
+        targets (str): Path to a file containing target sequences.
+        genome (str): Path to the full genome sequence.
+        output (str): Path to the output file.
+        model_path (str): Path to the DCModelOntar model file.
+        pam (str): PAM sequence used by the gRNA. 
+    """
+    # Load the model
+    model = DCModelOntar.load(model_path)
+
+    # Read in the input files
+    with open(gsRNA_candidates, "r") as f:
+        gRNA_seqs = [line.strip() for line in f if line.strip()]
+
+    with open(targets, "r") as f:
+        target_seqs = [line.strip() for line in f if line.strip()]
+
+    with open(genome, "r") as f:
+        genome_seq = f.read().strip()
+
+    # Run the prediction
+    results = model.ontar_predict(gRNA_seqs, target_seqs, genome_seq, pam)
+
+    # Write the results to a file
+    with open(output, "w") as f:
+        f.write("gRNA_sequence\ttarget_sequence\toff_target_count\toff_targets\n")
+        for result in results:
+            gRNA_seq, target_seq, off_target_count, off_targets = result
+            off_target_str = ",".join(off_targets)
+            f.write(f"{gRNA_seq}\t{target_seq}\t{off_target_count}\t{off_target_str}\n")
+
+@app.command()
+def design(
+    target_genes: str = typer.Argument(..., help="List of target genes"),
+    mutations: str = typer.Argument(..., help="List of mutations to introduce"),
+    full_genome: str = typer.Argument(..., help="Full genome sequence"),
+):
+    """
+    Design sgRNA candidates for given target genes and mutations using build_sgrna_library.
+
+    Parameters:
+        target_genes: List of target genes.
+        mutations: List of mutations to introduce.
+        full_genome: Full genome sequence.
+
+    """
+    # Generate sgRNA candidates for given target genes and mutations
+    sgRNA_candidates = build_sgrna_library(target_genes, mutations, full_genome)
+
+    # Write sgRNA candidates to sgRNA folder with unique names based on the target genes
+    for gene, sgrna_list in sgRNA_candidates.items():
+        with open(f"sgRNA/{gene}.txt", "w") as f:
+            for sgrna in sgrna_list:
+                f.write(sgrna + "\n")
+
+    typer.echo("sgRNA candidates have been generated and written to the sgRNA folder.")
+
+@app.command()
+def build(
     backbone_file: str = typer.Option(..., "--backbone-file", "-b", help="The path to the GenBank file of the plasmid backbone to build from."),
     target_dir: str = typer.Option(..., "--target-dir", "-t", help="The path to the directory containing the list of target genes to replace."),
     replacement_dir: str = typer.Option(..., "--replacement-dir", "-r", help="The path to the directory containing the list of replacement genes to use."),
