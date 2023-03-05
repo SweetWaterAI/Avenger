@@ -1,0 +1,5 @@
+
+avenger, i need code that will output a human-comaptible gsRNA for a PAM that matches a CpG island found in the GSTP1 gene.
+
+
+Give me a gsRNA that encodes for SpCas9-HF

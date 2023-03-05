@@ -2,6 +2,8 @@ import os
 import typer
 import subprocess
 from utils import load_gene 
+import luaparser
+import BIO
 from Bio import SeqIO, Entrez, Seq, SeqRecord, SeqFeature
 from Bio.SeqFeature import SeqFeature, FeatureLocation 
 # todo DeepCRISPR needs to be ported to tf2

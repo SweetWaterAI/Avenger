@@ -4,3 +4,4 @@ typer
 tensorflow
 dm-sonnet
 graphs
+lupa

@@ -1,0 +1,59 @@
+LOCUS       OQ448899                1421 bp    DNA     linear   BCT 21-FEB-2023
+DEFINITION  Asticcacaulis sp. 201 16S ribosomal RNA gene, partial sequence.
+ACCESSION   OQ448899
+VERSION     OQ448899.1
+KEYWORDS    .
+SOURCE      NCBI
+  ORGANISM  Asticcacaulis sp. 201
+            Bacteria; Pseudomonadota; Alphaproteobacteria; Caulobacterales;
+            Caulobacteraceae; Asticcacaulis.
+REFERENCE   1  (bases 1 to 1421)
+  AUTHORS   Albert,R.A. and Salvitti,L.
+  TITLE     Asticcacaulis aquahabitans, sp. nov. Isolated from Lake Michigan
+            water
+  JOURNAL   Unpublished
+REFERENCE   2  (bases 1 to 1421)
+  AUTHORS   Albert,R.A. and Salvitti,L.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (16-FEB-2023) Microbiology, Kleen Test Products, 1611
+            Sunset Road, Port Washington, WI 53092, USA
+COMMENT     ##Assembly-Data-START##
+            Assembly Method       :: unicycler v. 0.4.9
+            Sequencing Technology :: Illumina
+            ##Assembly-Data-END##
+FEATURES             Location/Qualifiers
+     source          1..1421
+                     /organism="Asticcacaulis sp. 201"
+                     /mol_type="genomic DNA"
+                     /strain="201"
+                     /db_xref="taxon:3028787"
+                     /country="USA"
+                     /collection_date="Jul-2016"
+     rRNA            <1..>1421
+                     /product="16S ribosomal RNA"
+ORIGIN
+        1 gagagtttga tcctggctca gagcgaacgc tggcggcagg cctaacacat gcaagtcgaa
+       61 cgatccttcg ggatagtggc ggacgggtga gtaacacgtg ggaacgtacc ttttggttcg
+      121 gaataactca gggaaacttg agctaatacc gaatgtgccc ttcgggggaa agatttatcg
+      181 ccattagagc ggcccgcgtt agattagcta gttggtgggg taaaggccca ccaaggctac
+      241 gatctatagc tggtctgaga ggatgatcag ccacattggg actgagacac ggcccaaact
+      301 cctacgggag gcagcagtgg ggaatcttgc gcaatggtcg aaagactgac gcagccatgc
+      361 cgcgtgaatg atgaaggtct taggattgta aaattctttc agtagggacg ataatgacgg
+      421 tacctacaga agaagccccg gctaacttcg tgccagcagc cgcggtaata cgaagggggc
+      481 tagcgttgct cggaattact gggcgtaaag ggagcgtagg cgggttatca agttggaggt
+      541 gaaagcccag ggctcaacct tggaattgcc ttcaaaactg atagcctaga gtatgataga
+      601 ggtaagtgga actccgagtg tagaggtgaa attcgtagat attcggaaga acaccagtgg
+      661 cgaaggcgac ttactggatc atgactgacg ctgaggctcg aaagcgtggg gagcaaacag
+      721 gattagatac cctggtagtc cacgctgtaa acgatgattg ctagttgtca gccggcatgc
+      781 cggttggtga cgcagctaac gcattaagca atccgcctgg ggagtacggt cgcaagatta
+      841 aaactcaaag gaattgacgg gggcccgcac aagcggtgga gcatgtggtt taattcgaag
+      901 caacgcgcag aaccttacca ccttttgaca tgcctggacc actcgagaga tcgagctttc
+      961 ccttcgggga ctgggacaca ggtgctgcat ggctgtcgtc agctcgtgtc gtgagatgtt
+     1021 gggttaagtc ccgcaacgag cgcaaccctc gctgttagtt gccatcattt agttgggaac
+     1081 tctaacagga ctgccggtgc taagccggag gaaggtgggg atgacgtcaa gtcctcatgg
+     1141 cccttacagg gtgggctaca cacgtgctac aatggcgact acagagggca aatccctaaa
+     1201 agtcgtctca gttcggattg tcctctgcaa ctcgagggca tgaagttgga atcgctagta
+     1261 atcgcggatc agcatgccgc ggtgaatacg ttcccgggcc ttgtacacac cgcccgtcac
+     1321 accatgggag ttggttctac ccgaaggcgc tgcgctaacc gcaagggggc aggcgaccac
+     1381 ggtagggtca gcgactgggg tgaagtcgta acaaggtagc c
+//
