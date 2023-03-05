@@ -2,14 +2,14 @@ import os
 import typer
 import subprocess
 from utils import load_gene 
-from Bio import SeqIO, Entrez
+from Bio import SeqIO, Entrez, Seq, SeqRecord, SeqFeature
 from Bio.SeqFeature import SeqFeature, FeatureLocation 
 # todo DeepCRISPR needs to be ported to tf2
 # from DeepCRISPR.deepcrispr import DCModelOntar
 # todo wrap this into a better include:
 # from sgrna_design import build_sgrna_library
 
-app = typer.Typer()
+app = typer.Typer( help="Build the future you choose." )
 
 @app.command()
 def get(gene_name: str, email: str = typer.Option(None, help="Email address for NCBI queries")):
@@ -175,7 +175,7 @@ def design(
     typer.echo("sgRNA candidates have been generated and written to the sgRNA folder.")
 
 @app.command()
-def build(
+def build_dna(
     backbone_file: str = typer.Option(..., "--backbone-file", "-b", help="The path to the GenBank file of the plasmid backbone to build from."),
     target_dir: str = typer.Option(..., "--target-dir", "-t", help="The path to the directory containing the list of target genes to replace."),
     replacement_dir: str = typer.Option(..., "--replacement-dir", "-r", help="The path to the directory containing the list of replacement genes to use."),
@@ -239,10 +239,83 @@ def build(
             backbone_record.features.append(replacement_feature)
         else:
             raise ValueError(f"Could not find target gene {target_record.id} in plasmid backbone.")
-    
     # Write the modified plasmid GenBank file to disk
     with open(output_file, "w") as f:
         SeqIO.write(backbone_record, f, "genbank")
+
+@app.command(help="Build a gsRNA with a human cap 5' and tail as an annotated GenBank file")
+def build_rna(
+    pam: str = typer.Argument(..., help="The PAM sequence"),
+    output_file: str = typer.Argument(..., help="The output file name"),
+    poly_a_length: int = typer.Option(120, "-a", "--poly_a_length", help="The length of the poly-A' tail")
+):
+    """
+    Build a gsRNA with a human cap 5' and tail as an annotated GenBank file.
+
+    The PAM sequence must be specified as an argument, and the output file name
+    must also be specified as an argument. The length of the poly-A' tail can be
+    controlled with the --poly_a_length option (default is 120).
+
+    Example:
+    $ gsRNA_builder build NGG gsRNA.gb -a 20
+    """
+
+    # Transcribe the PAM sequence to RNA
+    pam_rna = Seq(pam).reverse_complement().transcribe()
+
+    # Define the cap and tail sequences
+    cap_seq = "GAATTCGCGGCCGCTTCTAG"
+    tail_seq = "A" * poly_a_length
+
+    # Create the gsRNA sequence
+    gsRNA_seq = str(cap_seq + str(pam_rna) + tail_seq)
+
+    # Create a SeqRecord object for the gsRNA sequence
+    gsRNA_record = SeqRecord(Seq(gsRNA_seq), id="gsRNA", name="gsRNA",
+                             description="Guided RNA with human cap and tail")
+
+    # Add an annotated feature for the PAM sequence
+    pam_feature = SeqFeature(
+        SeqFeature.FeatureLocation(
+            start=len(cap_seq),
+            end=len(cap_seq)+len(pam),
+            strand=+1
+        ),
+        type="PAM",
+        id="pam_feature",
+        qualifiers={"note": f"PAM sequence: {pam}"}
+    )
+    gsRNA_record.features.append(pam_feature)
+
+    # Add an annotated feature for the cap sequence
+    cap_feature = SeqFeature(
+        SeqFeature.FeatureLocation(
+            start=0,
+            end=len(cap_seq),
+            strand=+1
+        ),
+        type="misc_feature",
+        id="cap_feature",
+        qualifiers={"note": "human cap sequence"}
+    )
+    gsRNA_record.features.append(cap_feature)
+
+    # Add an annotated feature for the tail sequence
+    tail_feature = SeqFeature(
+        SeqFeature.FeatureLocation(
+            start=len(cap_seq)+len(pam),
+            end=len(gsRNA_seq),
+            strand=+1
+        ),
+        type="misc_feature",
+        id="tail_feature",
+        qualifiers={"note": f"poly-A' tail length: {poly_a_length}"}
+    )
+    gsRNA_record.features.append(tail_feature)
+
+    # Write the gsRNA sequence to a GenBank file
+    with open(output_file, "w") as f:
+        SeqIO.write(gsRNA_record, f, "genbank")
 
 if __name__ == "__main__":
     app()
