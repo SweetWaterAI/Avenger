@@ -1,42 +1,22 @@
--- Load the required libraries
-require 'bio'
+-- Avenger - Create CRISPRi payload for an EBV promoter
 
--- Define the gene name
-gene_name = "GSTP1"
+-- Define the target promoter sequence
+target_seq = get("NC_007605.1:131083-132378")
 
--- Retrieve the sequence for the gene of interest
-gene_seq = get(gene_name)
-
--- Find CpG islands in the gene sequence
-cpg_islands = bio.find_cpg(gene_seq)
-
--- Select a CpG island to target
-cpg_island = cpg_islands[1]
+-- Define the guide RNA sequence
+guide_seq = "GGGTCTTCTGGGAGGGTGTG"
 
 -- Define the PAM sequence
-pam_seq = "NGG"
+pam_seq = "AGG"
 
--- Search for PAM sites within the selected CpG island
-pam_site = cpg_island:find(pam_seq)
+-- Define the scaffold RNA sequence
+scaffold_seq = "ATTTAGAGCTAGAAATAGCAAG"
 
--- Design a guide RNA sequence that targets the PAM site
-if pam_site ~= nil then
-  guide_seq = cpg_island:sub(pam_site - 20, pam_site - 1) .. pam_seq
-  guide_seq = guide_seq .. cpg_island:sub(pam_site + #pam_seq, pam_site + 19)
-  guide_seq = "GG" .. guide_seq .. "GG"
-  
-  -- Create a new sequence object for the guide RNA
-  guide_rna = create_sequence(guide_seq, "dna")
+-- Define the CRISPRi payload sequence
+payload_seq = scaffold_seq .. guide_seq .. pam_seq
 
-  -- Define the location of the PAM site in the gene sequence
-  pam_location = create_location(cpg_island.start + pam_site - 1, cpg_island.start + pam_site + #pam_seq - 2)
+-- Replace the target promoter sequence with the CRISPRi payload sequence
+edited_seq = replace(target_seq, 1, #payload_seq, payload_seq)
 
-  -- Create a new feature object for the guide RNA
-  guide_feature = create_feature("guide_RNA", pam_location, {create_qualifier("label", "GSTP1 guide RNA")})
-
-  -- Print the guide RNA sequence and feature
-  print("Guide RNA sequence:", guide_rna)
-  print("Guide RNA feature:", guide_feature)
-else
-  print("No PAM site found in selected CpG island")
-end
+-- Output the edited sequence
+print(edited_seq)

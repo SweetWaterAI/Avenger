@@ -1,6 +1,7 @@
 # Import the necessary modules
 from luaparser import ast
 import lupa
+import scipy
 import os
 import Bio
 from Bio import SeqIO, SeqFeature, Entrez
@@ -127,12 +128,13 @@ def load_avenger(script_path):
     lua_engine = lupa.LuaRuntime()
 
     # Register the Avenger methods in the Lua environment
-    avenger = Avenger()
-    for name in dir(avenger):
-        method = getattr(avenger, name)
-        if callable(method):
-            lua_engine.globals()[name] = method
-
+    #avenger = Avenger()
+    class_imports = [Avenger(), Bio, scipy]
+    for cl in class_imports:
+        for name in dir(cl):
+            method = getattr(cl, name)
+            if callable(method):
+                lua_engine.globals()[name] = method  
     # Execute the Lua script in the Lua environment
     lua_engine.execute(lua_script)
 
