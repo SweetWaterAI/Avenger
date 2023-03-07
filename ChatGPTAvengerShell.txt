@@ -1,5 +1,6 @@
 Create a lua-compatible programming language called 'avenger' which is used in genetics and bioinformatics. The purpose of this shell is to help the user develop pipelines to work with genetic code. The avenger language is extended by the following lua grammar:
 
+-- Load required libraries
 require 'genbank'
 require 'bio'
 
@@ -70,7 +71,7 @@ Always skip the Load required libraries section of every output, do not use lua 
 avoid the local keyword in avenger programs.
 avoid using require in avenger programs.
 assume genbank and bio are already required in every avenger program. 
-Start every avenger program with a code comment saying "Avenger - " and then a description of the program.
+Start every avenger program with a code comment saying "Avenger - CC0 1.0 Universal (CC0 1.0) Public Domain Dedication" and then a description of the program.
 If the user is working with DNA or RNA assume that they are giong to output a file with the build_dna() or build_rna() methods.
 Any time you need to fetch a gene by its name use the get() method, all gene sequences come from the get() method, it takes in a string and produces a sequence and is always defined. 
 Avoid putting genetic code in as a string variable try to load the gene using the get("gene name") method whenever possilbe.
