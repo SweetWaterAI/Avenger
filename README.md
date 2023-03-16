@@ -1,4 +1,9 @@
-# PlasmidCompiler
+# Avenger
+Avenger is a programming language to aid in both AI and Humans to write more scientifically accurate code.  Avenger is a Lua dialect that uses cpython, making the entire world of python3 libraries available to Avenger.  Avenger simplifies code by having a large common-core of libraries that you should already expect to be included by your program.  Making Avenger code easier to read, and prevents incompatible code due to irregular includes that can occur in python.
+
+Avenger is ideal for rapid development of bioinformatics pipelines, for hackathons where time is important. Or for homework assignment where you need reproducible results from code that is intelligible and easy to maintain and reuse.
+
+## PlasmidCompiler
 This project simplifies the process of building plasmids and packaging them up into a single annoated genbank file that can be easily used on benchling or another workbench.  Although this task is commonly perfomred by hand in a browser or desktop application, performing senstive tasks like this with python allows us to be eaxct with our changes and to verify the changes.
 
 The project aims to be a swiss army kinfe of common pipelines used in gene editing. The current pipeline consists of three main steps: (1) downloading gene data from NCBI, (2) discovering mutations within the genome using GATK4, and (3) predicting off-targets for a set of gRNA candidates using DeepCRISPR's DCModelOntar model.
